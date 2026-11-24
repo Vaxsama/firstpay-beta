@@ -3,4 +3,10 @@ Départ: ${v('type')}
 Utilité: ${v('rating')}
 Bug: ${v('bug')}
 Suggestion: ${v('ideas')}
+<a href="https://docs.google.com/forms/d/e/1FAIpQLScLq73O9Wnfe4NH9wXRB0pbx5NAIp1_jWAYE5m3VQL1tV6T9w/viewform"
+   target="_blank"
+   rel="noopener noreferrer"
+   class="feedback-button">
+   Donner mon avis sur FirstPay
+</a>
 Autre: ${v('other')}`;try{await navigator.clipboard.writeText(out);document.getElementById('status').textContent='Copié ! Colle ce texte dans ton message pour nous le transmettre.'}catch(e){let t=document.createElement('textarea');t.value=out;document.body.appendChild(t);t.select();document.execCommand('copy');t.remove();document.getElementById('status').textContent='Feedback copié ou sélectionné pour copie.'}})</script></body></html>
