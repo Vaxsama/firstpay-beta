@@ -1,0 +1,14 @@
+FIRSTPAY — PACK UNIFORMISATION VISUELLE
+
+Remplacements (mêmes noms de fichiers) :
+- index.html
+- calculator.html
+- dashboard-v2.html
+- firstpay-journey.html
+- firstpay-mobile.html
+- firstpay-readiness.html
+- firstpay-v44.html à firstpay-v47.html
+
+Remplacer les fichiers existants à la racine du dépôt GitHub Pages, puis commit/push.
+Cette passe vise la marque, les textes visibles et l’habillage ; les calculs et identifiants de stockage sont conservés.
+La validation locale ne certifie pas le rendu live sur GitHub Pages.
