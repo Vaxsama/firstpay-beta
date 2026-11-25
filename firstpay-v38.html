@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FIRSTPAY V38 — Shared Profile & Data Hub</title>
+<style>
+:root{--bg:#0b1220;--card:#131e31;--card2:#18263b;--text:#edf3ff;--muted:#a7b5cb;--accent:#58d5bd;--line:#283a55;--warn:#f3c969}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(160deg,#09111d,#0b1628 60%,#102033);color:var(--text);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;padding:20px}
+main{max-width:1000px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}.brand{letter-spacing:.12em;color:var(--accent);font-weight:800}.sub{color:var(--muted);margin-top:6px}h1{font-size:clamp(24px,4vw,38px);margin:12px 0 4px}h2{font-size:18px;margin:0 0 14px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin:18px 0}.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px}.card small{color:var(--muted)}label{display:block;font-size:13px;color:var(--muted);margin:12px 0 6px}input,select,textarea{width:100%;background:#0b1525;border:1px solid var(--line);border-radius:10px;padding:11px;color:var(--text);font:inherit}button,.link{border:1px solid var(--line);border-radius:10px;background:var(--card2);color:var(--text);padding:10px 13px;font-weight:650;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center}button.primary{background:var(--accent);border-color:var(--accent);color:#071522}button:hover,.link:hover{filter:brightness(1.12)}.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}.stat{background:#0b1525;border:1px solid var(--line);border-radius:12px;padding:13px}.stat b{display:block;font-size:20px;margin-top:4px}.bar{height:9px;border-radius:99px;background:#253650;overflow:hidden;margin:10px 0}.fill{height:100%;width:0;background:var(--accent);transition:width .2s}.modules{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}.module{border:1px solid var(--line);border-radius:13px;padding:13px;background:var(--card2)}.module p{color:var(--muted);font-size:13px;min-height:34px}.module a{color:var(--accent);text-decoration:none;font-weight:700}.foot{color:var(--muted);font-size:12px;margin:22px 0}.notice{border-left:3px solid var(--warn);padding:10px 12px;color:var(--muted);background:#1a2636;border-radius:8px;font-size:13px}
+</style>
+</head>
+<body><main>
+<div class="top"><div><div class="brand">FIRSTPAY / V38</div><div class="sub">SHARED PROFILE & DATA HUB</div></div><div class="actions"><button onclick="exportProfile()">Exporter profil</button><button onclick="document.getElementById('importFile').click()">Importer profil</button><input id="importFile" type="file" accept=".json,application/json" hidden onchange="importProfile(event)"></div></div>
+<h1>Ton profil de départ, au même endroit.</h1><div class="sub">Centralise tes données de base, garde une copie de ton profil et retrouve tes modules FIRSTPAY.</div>
+<div class="grid">
+<section class="card"><h2>Profil de départ</h2>
+<label>Nom du projet / destination</label><input id="project" placeholder="Ex. PVT Canada — Calgary">
+<label>Date de départ visée</label><input id="date" type="date">
+<label>Budget cible (€)</label><input id="target" type="number" min="0" placeholder="0">
+<label>Épargne actuelle (€)</label><input id="savings" type="number" min="0" placeholder="0">
+<label>Épargne par semaine (€)</label><input id="weekly" type="number" min="0" placeholder="0">
+<label>Priorité actuelle</label><select id="priority"><option>Équilibre général</option><option>Épargne</option><option>Documents / démarches</option><option>Recherche d'emploi</option><option>Logement</option></select>
+<label>Notes / éléments à retenir</label><textarea id="notes" rows="3" placeholder="Contraintes, objectifs, informations utiles..."></textarea>
+<div class="actions"><button class="primary" onclick="save()">Enregistrer mon profil</button><button onclick="resetProfile()">Réinitialiser</button></div></section>
+<section class="card"><h2>Vue rapide</h2><div class="stats"><div class="stat"><small>Budget cible</small><b id="vTarget">—</b></div><div class="stat"><small>Épargne</small><b id="vSavings">—</b></div><div class="stat"><small>Reste à réunir</small><b id="vGap">—</b></div><div class="stat"><small>Progression</small><b id="vPercent">0%</b></div></div><div class="bar"><div class="fill" id="fill"></div></div><p id="weeks" class="sub">Renseigne tes données puis enregistre.</p><p id="saved" class="sub"></p><div class="notice">Ce profil est stocké localement dans ce navigateur. L’export JSON te permet de le sauvegarder ou de le transférer manuellement. Il ne synchronise pas encore automatiquement les anciens modules V33–V37.</div></section></div>
+<section class="card"><h2>Accès aux modules</h2><div class="modules">
+<div class="module"><b>V33 — Cashflow Engine</b><p>Simuler ton solde au fil des jours.</p><a href="firstpay-v33.html">Ouvrir V33 ↗</a></div>
+<div class="module"><b>V34 — Scenario Comparison</b><p>Comparer salaire à l'heure ou retardé.</p><a href="firstpay-v34.html">Ouvrir V34 ↗</a></div>
+<div class="module"><b>V35 — Smart Recommendations</b><p>Identifier les leviers pour réduire ton gap.</p><a href="firstpay-v35.html">Ouvrir V35 ↗</a></div>
+<div class="module"><b>V36 — Personal Action Plan</b><p>Plan d'actions et checklist personnalisée.</p><a href="firstpay-v36.html">Ouvrir V36 ↗</a></div>
+<div class="module"><b>V37 — Master Dashboard</b><p>Ton cockpit central FIRSTPAY.</p><a href="firstpay-v37.html">Ouvrir V37 ↗</a></div>
+<div class="module"><b>Beta V2.2 — Calculator</b><p>Retour au calculateur beta existant.</p><a href="index.html">Ouvrir Beta ↗</a></div>
+</div></section><div class="foot">FIRSTPAY V38 • Shared Profile & Data Hub • Données conservées sur cet appareil.</div></main>
+<script>
+const KEY='firstpay_v38_shared_profile';
+const ids=['project','date','target','savings','weekly','priority','notes'];
+function money(n){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(n)||0)}
+function get(){return Object.fromEntries(ids.map(id=>[id,document.getElementById(id).value]))}
+function paint(p){ids.forEach(id=>{if(p&&p[id]!==undefined)document.getElementById(id).value=p[id]});update()}
+function update(){const p=get(),t=Number(p.target)||0,s=Number(p.savings)||0,w=Number(p.weekly)||0,g=Math.max(0,t-s),pct=t?Math.min(100,Math.round(s/t*100)):0;document.getElementById('vTarget').textContent=money(t);document.getElementById('vSavings').textContent=money(s);document.getElementById('vGap').textContent=money(g);document.getElementById('vPercent').textContent=pct+'%';document.getElementById('fill').style.width=pct+'%';document.getElementById('weeks').textContent=g===0&&t>0?'Objectif budget atteint 🎉':w>0?`À ce rythme : environ ${Math.ceil(g/w)} semaine(s) pour combler le gap.`:'Renseigne une épargne hebdomadaire pour estimer le délai.'}
+function save(){const p=get();localStorage.setItem(KEY,JSON.stringify(p));update();document.getElementById('saved').textContent='Profil enregistré localement ✓'}
+function resetProfile(){if(confirm('Effacer les données du profil V38 sur cet appareil ?')){localStorage.removeItem(KEY);ids.forEach(id=>document.getElementById(id).value='');update();document.getElementById('saved').textContent='Profil effacé.'}}
+function exportProfile(){const p=get();p.exportedAt=new Date().toISOString();const blob=new Blob([JSON.stringify(p,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='firstpay-profil-v38.json';a.click();URL.revokeObjectURL(a.href)}
+function importProfile(e){const f=e.target.files[0];if(!f)return;const reader=new FileReader();reader.onload=()=>{try{const p=JSON.parse(reader.result);paint(p);save();document.getElementById('saved').textContent='Profil importé et enregistré ✓'}catch{alert('Fichier JSON invalide.')}};reader.readAsText(f);e.target.value=''}
+ids.forEach(id=>document.getElementById(id).addEventListener('input',update));try{const p=JSON.parse(localStorage.getItem(KEY)||'null');if(p)paint(p)}catch{}
+</script></body></html>
