@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FIRSTPAY V33 — Cashflow Engine</title>
+<style>
+:root{--bg:#f5f7f3;--card:#fff;--ink:#18372c;--muted:#66766d;--green:#22634c;--line:#dfe7e1;--red:#a63b3b;--amber:#a66a16}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,Segoe UI,sans-serif}
+main{max-width:1100px;margin:auto;padding:24px}header{margin-bottom:24px}h1{font-size:clamp(26px,5vw,42px);margin:8px 0}p{color:var(--muted)}.eyebrow{font-size:12px;letter-spacing:.15em;font-weight:800;color:var(--green)}
+.grid{display:grid;grid-template-columns:1.2fr .8fr;gap:18px}.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:20px;box-shadow:0 3px 15px #18372c08}
+h2{font-size:18px;margin:0 0 16px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:12px}.field label{display:block;font-size:13px;color:var(--muted);margin-bottom:5px}.field input,.field select{width:100%;border:1px solid var(--line);border-radius:10px;padding:11px;font:inherit;background:#fff;color:var(--ink)}
+button{border:0;background:var(--green);color:#fff;padding:11px 15px;border-radius:10px;font-weight:700;cursor:pointer;margin:5px 5px 0 0}button.secondary{background:#e7eee9;color:var(--green)}button.danger{background:#f8e9e9;color:var(--red)}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:10px}.metric{border:1px solid var(--line);border-radius:12px;padding:13px}.metric small{color:var(--muted);display:block}.metric strong{font-size:22px;display:block;margin-top:4px}
+.status{padding:14px;border-radius:12px;margin-top:12px;font-weight:800}.good{background:#e8f4ec;color:#226343}.warn{background:#fff3df;color:#875510}.bad{background:#fae8e8;color:#a23333}
+table{width:100%;border-collapse:collapse;font-size:14px}td,th{text-align:left;padding:9px;border-bottom:1px solid var(--line)}th{color:var(--muted);font-weight:600}.scroll{max-height:400px;overflow:auto}.note{font-size:12px;color:var(--muted);margin-top:10px}.lineitem{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line)}
+@media(max-width:750px){main{padding:15px}.grid{grid-template-columns:1fr}.fields{grid-template-columns:1fr 1fr}.metrics{grid-template-columns:1fr 1fr}}
+</style></head><body><main>
+<header><div class="eyebrow">FIRSTPAY · V40 INTEGRATION LAYER</div><h1>Cashflow Engine + Unified Data</h1><p>Visualise ton argent jour par jour jusqu'au premier salaire : frais initiaux, dépenses récurrentes, revenus et date de rupture éventuelle.</header>
+<div class="grid">
+<section class="card"><h2>Paramètres du projet</h2><div class="fields">
+<div class="field"><label>Projet</label><input id="projectName" placeholder="Canada 2027"></div>
+<div class="field"><label>Destination</label><input id="destination" placeholder="Calgary, Canada"></div>
+<div class="field"><label>Date de départ</label><input id="start" type="date"></div>
+<div class="field"><label>Cash de départ (€)</label><input id="cash" type="number" min="0" value="2500"></div>
+<div class="field"><label>Billets / transport (€)</label><input id="tickets" type="number" min="0" value="650"></div>
+<div class="field"><label>Installation initiale (€)</label><input id="setup" type="number" min="0" value="800"></div>
+<div class="field"><label>Horizon (jours)</label><input id="horizon" type="number" min="1" max="365" value="60"></div>
+<div class="field"><label>Réserve minimum (€)</label><input id="reserve" type="number" min="0" value="400"></div>
+</div><h2 style="margin-top:22px">Dépenses récurrentes (par semaine)</h2><div class="fields">
+<div class="field"><label>Logement (€)</label><input id="rent" type="number" min="0" value="180"></div>
+<div class="field"><label>Alimentation (€)</label><input id="food" type="number" min="0" value="80"></div>
+<div class="field"><label>Transport local (€)</label><input id="local" type="number" min="0" value="35"></div>
+<div class="field"><label>Autres dépenses (€)</label><input id="other" type="number" min="0" value="25"></div>
+</div><h2 style="margin-top:22px">Revenus</h2><div class="fields">
+<div class="field"><label>Montant du premier salaire (€)</label><input id="salary" type="number" min="0" value="1800"></div>
+<div class="field"><label>Jour prévu du premier salaire</label><input id="payday" type="number" min="1" value="35"></div>
+<div class="field"><label>Retard de salaire à simuler (jours)</label><input id="delay" type="number" min="0" value="0"></div>
+<div class="field"><label>Revenu intermédiaire total (€)</label><input id="interim" type="number" min="0" value="0"></div>
+<div class="field"><label>Jour du revenu intermédiaire</label><input id="interimDay" type="number" min="1" value="15"></div>
+</div><div><button id="run">Lancer la simulation</button><button class="secondary" id="loadProject">Importer le projet V32</button><button class="secondary" id="save">Sauvegarder les paramètres</button>
+<button class="secondary" id="loadV39">Importer profil V39</button>
+<button class="secondary" id="syncV39">Synchroniser vers V39</button>
+<a class="secondary" href="firstpay-v39.html" style="display:inline-block;padding:11px 15px;border-radius:10px;text-decoration:none;margin:5px 5px 0;background:#e7eee9;color:var(--green);font-weight:700">Ouvrir Data Engine V39</a>
+</div><p id="msg" class="note"></p><p id="syncStatus" class="note"></p></section>
+<aside class="card"><h2>Résultat</h2><div class="metrics">
+<div class="metric"><small>Cash après départ</small><strong id="after">—</strong></div>
+<div class="metric"><small>Cash minimum</small><strong id="mincash">—</strong></div>
+<div class="metric"><small>Jour de rupture</small><strong id="broke">—</strong></div>
+<div class="metric"><small>Cash au 1er salaire</small><strong id="atpay">—</strong></div>
+<div class="metric"><small>Cash final</small><strong id="final">—</strong></div>
+<div class="metric"><small>Réserve à préserver</small><strong id="reserveMetric">—</strong></div></div>
+<div id="verdict" class="status warn">Lance une simulation</div>
+<h2 style="margin-top:18px">Alertes</h2><div id="alerts"></div><p class="note">Simulation indicative. Les récurrences hebdomadaires sont réparties en charges journalières moyennes (÷7) pour le calcul; le tableau affiche les dates et soldes simulés.</aside></div>
+<section class="card" style="margin-top:18px"><h2>Calendrier cashflow</h2><div class="scroll"><table><thead><tr><th>Jour</th><th>Date</th><th>Événement</th><th>Entrées</th><th>Sorties</th><th>Solde</th></tr></thead><tbody id="rows"></tbody></table></div></section>
+<section class="card" style="margin-top:18px"><h2>Répartition des dépenses hebdomadaires</h2><div id="breakdown"></div><div><button class="secondary" onclick="window.location.href='firstpay-v32.html'">Retour V32</button></div></section>
+</main>
+<script>
+
+/* FIRSTPAY V40 Integration Adapter: Unified Data Engine V39 compatibility */
+(function(){
+const KEY='firstpay_unified_data_v39';
+const base={schemaVersion:1,updatedAt:null,profile:{destination:'',departureDate:'',targetBudget:0,currentSavings:0,weeklySavings:0,priority:'Équilibre général'},expenses:[],incomes:[],milestones:[],scenarios:[],meta:{}};
+function read(){try{let x=JSON.parse(localStorage.getItem(KEY)||'null');return x&&x.schemaVersion===1?Object.assign(JSON.parse(JSON.stringify(base)),x):JSON.parse(JSON.stringify(base))}catch{return JSON.parse(JSON.stringify(base))}}
+function write(d){d.updatedAt=new Date().toISOString();localStorage.setItem(KEY,JSON.stringify(d));window.dispatchEvent(new CustomEvent('firstpay:data-updated',{detail:d}));return d}
+function update(path,val){let d=read(),p=path.split('.'),o=d;p.slice(0,-1).forEach(k=>{if(!o[k]||typeof o[k]!=='object')o[k]={};o=o[k]});o[p[p.length-1]]=val;return write(d)}
+window.FirstPayData=window.FirstPayData||{storageKey:KEY,load:read,get:(path)=>path?path.split('.').reduce((o,k)=>o==null?undefined:o[k],read()):read(),set:update,save:write,add:(c,item)=>{let d=read();if(!['expenses','incomes','milestones','scenarios'].includes(c))throw Error('Collection');item.id=item.id||'fp_'+Date.now().toString(36);d[c].push(item);return write(d)},remove:(c,id)=>{let d=read();d[c]=(d[c]||[]).filter(x=>x.id!==id);return write(d)},exportJSON:()=>JSON.stringify(read(),null,2),importJSON:(raw)=>{let d=typeof raw==='string'?JSON.parse(raw):raw;if(d.schemaVersion!==1)throw Error('Schema');return write(d)},registerModule:()=>{},modules:()=>[]};
+})();
+
+const $=id=>document.getElementById(id), ids=['projectName','destination','start','cash','tickets','setup','horizon','reserve','rent','food','local','other','salary','payday','delay','interim','interimDay'];
+const euro=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n||0);
+function values(){let d={};ids.forEach(i=>d[i]=$(i).value);return d}
+function fromProject(){try{const p=JSON.parse(localStorage.getItem('firstpay_project_shared_v32')||'null');if(!p){$('msg').textContent='Pas de projet V32 trouvé sur ce navigateur. Saisis les valeurs manuellement ou importe un projet depuis V32.';return}
+$('projectName').value=p.name||'';$('destination').value=p.destination||'';$('start').value=p.departure||'';
+$('cash').value=p.cash||0;$('tickets').value=p.ticket||0;$('setup').value=p.setup||0;$('reserve').value=p.reserve||0;$('salary').value=p.salary||0;$('payday').value=p.days||35;
+const daily=Number(p.daily||0); $('food').value=Math.round(daily*7);$('msg').textContent='Projet V32 importé. Vérifie les charges, puis lance la simulation.'}catch(e){$('msg').textContent='Import impossible.'}}
+function sim(){
+const d=values(),num=k=>Number(d[k])||0, start=d.start?new Date(d.start+'T12:00:00'):new Date(), days=Math.max(1,Math.min(365,num('horizon'))), initial=num('cash')-num('tickets')-num('setup'), weekly=num('rent')+num('food')+num('local')+num('other'), daily=weekly/7;
+let balance=initial,min=balance,minDay=0,breakDay=null,atPay=null,rows=[],alerts=[];
+for(let day=1;day<=days;day++){let date=new Date(start);date.setDate(date.getDate()+day-1);let income=0,out=daily,events=['Dépenses courantes'];
+const intDay=Math.max(1,num('interimDay'));if(num('interim')>0&&day===intDay){income+=num('interim');events.push('Revenu intermédiaire')}
+const payDay=Math.max(1,num('payday')+num('delay'));if(num('salary')>0&&day===payDay){income+=num('salary');events.push('Premier salaire')}
+balance+=income-out;if(balance<min){min=balance;minDay=day}if(balance<0&&breakDay===null)breakDay=day;if(day===payDay)atPay=balance;
+rows.push({day,date:date.toLocaleDateString('fr-FR'),events:events.join(' + '),income,out,balance});
+}
+const final=balance;
+$('after').textContent=euro(initial);$('mincash').textContent=euro(min);$('broke').textContent=breakDay?`Jour ${breakDay}`:'Aucune';$('atpay').textContent=atPay===null?'Hors horizon':euro(atPay);$('final').textContent=euro(final);$('reserveMetric').textContent=euro(num('reserve'));
+$('rows').innerHTML=rows.map(r=>`<tr><td>${r.day}</td><td>${r.date}</td><td>${r.events}</td><td>${euro(r.income)}</td><td>${euro(r.out)}</td><td style="color:${r.balance<0?'var(--red)':r.balance<num('reserve')?'var(--amber)':'inherit'}">${euro(r.balance)}</td></tr>`).join('');
+$('breakdown').innerHTML=[['Logement',num('rent')],['Alimentation',num('food')],['Transport',num('local')],['Autres',num('other')]].map(([name,v])=>`<div class="lineitem"><span>${name}</span><strong>${euro(v)} / semaine</strong></div>`).join('')+`<div class="lineitem"><span>Total</span><strong>${euro(weekly)} / semaine · ${euro(daily)} / jour</strong></div>`;
+if(breakDay)alerts.push(`⚠️ Solde négatif dès le jour ${breakDay}.`);
+if(min<num('reserve'))alerts.push(`⚠️ Le cash minimum (${euro(min)}) passe sous ta réserve cible (${euro(num('reserve'))}).`);
+if(num('delay')>0)alerts.push(`⏳ Retard salarial simulé : ${num('delay')} jours.`);
+if(days<Math.max(num('payday')+num('delay'),1))alerts.push('ℹ️ L’horizon se termine avant le premier salaire.');
+$('alerts').innerHTML=alerts.length?alerts.map(a=>`<div class="lineitem">${a}</div>`).join(''):'Aucune alerte avec les valeurs saisies.';
+const v=$('verdict');if(breakDay){v.className='status bad';v.textContent='NOT READY — trésorerie négative';}else if(min<num('reserve')){v.className='status warn';v.textContent='GO WITH CAUTION — réserve entamée';}else{v.className='status good';v.textContent='GO — réserve préservée selon la simulation';}
+}
+$('run').onclick=sim;$('loadProject').onclick=fromProject;$('save').onclick=()=>{localStorage.setItem('firstpay_cashflow_v33',JSON.stringify(values()));$('msg').textContent='Paramètres V33 sauvegardés localement.'};
+try{const saved=JSON.parse(localStorage.getItem('firstpay_cashflow_v33')||'null');if(saved)ids.forEach(id=>{if(saved[id]!=null)$(id).value=saved[id]})}catch(e){}
+
+function v39ProfileToV33(){
+ const d=window.FirstPayData.load(),p=d.profile||{};
+ // Imported shared fields with explicit conversion; only known mappings are applied.
+ if(p.destination)$('destination').value=p.destination;
+ if(p.departureDate)$('start').value=p.departureDate;
+ if(Number(p.currentSavings)>0)$('cash').value=p.currentSavings;
+ if(Number(p.targetBudget)>0)$('reserve').value=Math.min(Number($('reserve').value)||400,Number(p.targetBudget));
+ if(p.destination)$('projectName').value='FIRSTPAY — '+p.destination;
+ // Derive weekly categories from common expenses when category labels match.
+ const categoryMap={'Logement':'rent','Alimentation':'food','Transport':'local','Autres':'other'};
+ (d.expenses||[]).forEach(e=>{let f=categoryMap[e.name];if(f&&Number(e.amount)>=0){let amt=Number(e.amount),freq=e.frequency;if(freq==='monthly')amt=amt*12/52;else if(freq==='once')return;else if(freq!=='weekly')return;$(f).value=amt}});
+ $('msg').textContent='Profil V39 importé. Vérifie les conversions et les montants avant simulation.';
+ $('syncStatus').textContent='Import V39 → V33 : destination, date, cash et dépenses catégorisées.';
+ sim();
+}
+function v33ToV39(){
+ const d=window.FirstPayData.load(),v=values();
+ const p=d.profile||{};
+ p.destination=v.destination||p.destination;p.departureDate=v.start||p.departureDate;p.currentSavings=Number(v.cash)||0;
+ // Save V33 snapshot as a versioned field in the common data model for exact round-trip.
+ d.cashflowV33={...v,updatedAt:new Date().toISOString(),source:'V40 adapter'};
+ // Normalize recognized recurring expenses into common shared collection; replace V33-owned records only.
+ const names={'rent':'Logement','food':'Alimentation','local':'Transport','other':'Autres'};
+ d.expenses=(d.expenses||[]).filter(e=>!e.sourceV33);
+ Object.entries(names).forEach(([id,name])=>{const amount=Number(v[id])||0;if(amount>0)d.expenses.push({id:'v33_'+id,name,amount,frequency:'weekly',sourceV33:true})});
+ d.meta=d.meta||{};d.meta.lastSync='V33 → V39 via V40';d.meta.lastSyncAt=new Date().toISOString();
+ window.FirstPayData.save(d);
+ localStorage.setItem('firstpay_cashflow_v33',JSON.stringify(v));
+ $('syncStatus').textContent='Synchronisation V33 → V39 effectuée ✓ Profil, cash et charges hebdomadaires mis à jour.';
+ $('msg').textContent='Paramètres V33 sauvegardés et synchronisés dans le moteur commun.';
+}
+$('loadV39').onclick=v39ProfileToV33;
+$('syncV39').onclick=v33ToV39;
+
+sim();
+</script></body></html>
