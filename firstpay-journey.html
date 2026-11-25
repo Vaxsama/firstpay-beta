@@ -1,0 +1,39 @@
+<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>FIRSTPAY — Mon parcours</title><style>
+:root{--bg:#0b1220;--p:#142036;--p2:#0e1828;--line:#2a3b56;--txt:#edf4ff;--muted:#a5b5cc;--mint:#5ed6c1;--amber:#f1c76b}*{box-sizing:border-box}body{margin:0;padding:16px;background:radial-gradient(900px 500px at 15% 0,#1b2d45,#0b1220 58%);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1050px;margin:auto}.brand{font-weight:900;letter-spacing:.16em;color:var(--mint);font-size:14px}.muted{color:var(--muted)}h1{font-size:clamp(27px,5vw,44px);line-height:1.13;margin:14px 0}h2{font-size:19px;margin:0 0 8px}p{line-height:1.5}.hero,.panel,.card{border:1px solid var(--line);background:var(--p);border-radius:18px;padding:17px}.hero{background:linear-gradient(140deg,#182b43,#121c2d);margin:12px 0}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px;margin:14px 0}.card{display:flex;flex-direction:column;min-height:235px;gap:10px}.card .num{color:var(--mint);font-weight:800;font-size:12px;letter-spacing:.12em}.card p{color:var(--muted);margin:0;flex:1}.btn{display:inline-block;text-decoration:none;border:1px solid var(--line);border-radius:11px;padding:11px 14px;background:#1b2b43;color:var(--txt);font-weight:750}.primary{background:var(--mint);color:#07161d;border-color:var(--mint)}.tag{display:inline-block;border:1px solid var(--line);border-radius:999px;padding:5px 9px;font-size:12px;color:var(--muted)}.statusrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:9px}.metric{background:var(--p2);border:1px solid var(--line);padding:12px;border-radius:12px}.metric small{display:block;color:var(--muted)}.metric b{font-size:20px;display:block;margin-top:3px}.bar{height:10px;background:#0b1220;border-radius:99px;overflow:hidden;margin-top:10px}.bar span{display:block;height:100%;width:0;background:var(--mint);transition:width .2s}.foot{font-size:12px;color:var(--muted);margin:20px 0}.steps{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0}.step{background:var(--p2);border:1px solid var(--line);padding:8px 10px;border-radius:10px;color:var(--muted)}.step.done{color:var(--mint);border-color:#32665b}
+</style></head><body><main>
+<header><div class="brand">FIRSTPAY</div><span class="tag">YOUR DEPARTURE, FINANCIALLY PREPARED</span></header>
+<section class="hero"><h1>Prépare ton départ.<br>Prends tes décisions avec confiance.</h1><p class="muted">Un parcours simple pour planifier ton budget, estimer tes revenus, comparer tes options et vérifier que tu es prêt à partir.</p><a class="btn primary" href="firstpay-v44.html">Commencer mon projet →</a></section>
+<section class="panel"><h2>Ton parcours</h2><p class="muted">Progression calculée sur les données présentes dans ce navigateur. Tu peux avancer à ton rythme.</p><div class="statusrow"><div class="metric"><small>Étapes commencées</small><b id="started">0/4</b></div><div class="metric"><small>Progression du parcours</small><b id="progress">0%</b></div><div class="metric"><small>Profil destination</small><b id="destination">Non renseigné</b></div></div><div class="bar"><span id="bar"></span></div><div class="steps"><div id="s1" class="step">1 · Projet</div><div id="s2" class="step">2 · Revenus</div><div id="s3" class="step">3 · Scénarios</div><div id="s4" class="step">4 · Préparation</div></div></section>
+<div class="grid">
+<section class="card"><div class="num">ÉTAPE 01</div><h2>Budget & projet</h2><p>Définis ta destination, ta date, ton budget cible et ton épargne. Comprends le montant qu'il te reste à réunir.</p><div id="budgetBadge" class="tag">À commencer</div><a class="btn primary" href="firstpay-v44.html">Créer mon projet →</a></section>
+<section class="card"><div class="num">ÉTAPE 02</div><h2>Emploi & revenus</h2><p>Prévois ton contrat, tes heures, tes revenus estimés, ton premier jour de paie et ton cash pendant l'attente.</p><div id="jobBadge" class="tag">À commencer</div><a class="btn" href="firstpay-v46.html">Planifier mes revenus →</a></section>
+<section class="card"><div class="num">ÉTAPE 03</div><h2>Comparer mes scénarios</h2><p>Compare un scénario optimiste, réaliste et prudent. Identifie celui qui protège le mieux ta trésorerie.</p><div id="scenarioBadge" class="tag">À ouvrir</div><a class="btn" href="firstpay-v45.html">Comparer mes options →</a></section>
+<section class="card"><div class="num">ÉTAPE 04</div><h2>Ma préparation au départ</h2><p>Vérifie visa, documents, logement, transport, assurance, budget, arrivée et plan de secours.</p><div id="readyBadge" class="tag">À vérifier</div><a class="btn" href="firstpay-readiness.html">Faire le bilan →</a></section>
+</div>
+<section class="panel"><h2>Une recommandation avant de partir</h2><p class="muted" id="next">Commence par définir ton projet de départ. Les étapes suivantes se débloqueront naturellement à mesure que tu renseignes tes informations.</p><a id="nextLink" class="btn primary" href="firstpay-v44.html">Continuer →</a></section>
+<div class="foot">FIRSTPAY · Un parcours personnel de préparation financière. Les estimations sont indicatives et ne remplacent pas la vérification des contrats, conditions de séjour ou frais réels.</div>
+</main><script>
+const keys={budget:'firstpay_core_v44',job:'firstpay_employment_v46',unified:'firstpay_unified_data_v39',checks:'firstpay_readiness_v47'};
+function read(k){try{return JSON.parse(localStorage.getItem(k)||'null')}catch{return null}}
+function refresh(){
+ let core=read(keys.budget),employment=read(keys.job),unified=read(keys.unified),checks=read(keys.checks)||{};
+ const prof=core?.profile||unified?.profile||{};
+ const budgetDone=!!(prof.destination||prof.targetBudget||prof.currentSavings);
+ const jobDone=!!(employment?.job||employment?.wage||employment?.employer);
+ const scenarioDone=!!(core?.scenarios||unified?.scenarios||localStorage.getItem('firstpay_scenarios_v45'));
+ const readinessDone=Object.values(checks).some(Boolean);
+ const done=[budgetDone,jobDone,scenarioDone,readinessDone].filter(Boolean).length;
+ document.getElementById('started').textContent=done+'/4';
+ document.getElementById('progress').textContent=Math.round(done/4*100)+'%';
+ document.getElementById('bar').style.width=(done/4*100)+'%';
+ document.getElementById('destination').textContent=prof.destination||'Non renseigné';
+ [['s1',budgetDone],['s2',jobDone],['s3',scenarioDone],['s4',readinessDone]].forEach(([id,d])=>document.getElementById(id).classList.toggle('done',d));
+ document.getElementById('budgetBadge').textContent=budgetDone?'Informations enregistrées':'À commencer';
+ document.getElementById('jobBadge').textContent=jobDone?'Informations enregistrées':'À commencer';
+ document.getElementById('scenarioBadge').textContent=scenarioDone?'Scénarios détectés':'À ouvrir';
+ document.getElementById('readyBadge').textContent=readinessDone?'Checklist commencée':'À vérifier';
+ const next=budgetDone&&!jobDone?['Planifie maintenant ton emploi et tes revenus.','firstpay-v46.html','Planifier mes revenus →']:!budgetDone?['Commence par définir ta destination, ton budget et ton épargne.','firstpay-v44.html','Créer mon projet →']:!scenarioDone?['Compare ensuite plusieurs scénarios pour mesurer les risques.','firstpay-v45.html','Comparer mes options →']:!readinessDone?['Termine par la checklist de préparation et confirme ce qui est déjà sécurisé.','firstpay-readiness.html','Faire le bilan →']:['Ton parcours est bien avancé. Reviens vérifier les données et confirmations avant de prendre tes décisions.','firstpay-readiness.html','Revoir mon bilan →'];
+ document.getElementById('next').textContent=next[0];document.getElementById('nextLink').href=next[1];document.getElementById('nextLink').textContent=next[2];
+}
+refresh();
+</script></body></html>
