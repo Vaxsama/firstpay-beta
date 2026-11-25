@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="fr"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>FIRSTPAY V42 — Data Validation & Integrity</title>
+<style>
+:root{--bg:#0b1220;--panel:#142036;--panel2:#0e1828;--line:#2a3b56;--txt:#edf4ff;--muted:#a5b5cc;--mint:#5ed6c1;--amber:#f1c76b;--red:#ff8585}
+*{box-sizing:border-box}body{margin:0;padding:18px;background:radial-gradient(900px 500px at 15% 0,#1b2d45,#0b1220 58%);color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,sans-serif}main{max-width:1120px;margin:auto}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.brand{color:var(--mint);font-weight:850;letter-spacing:.14em}.muted{color:var(--muted)}h1{font-size:clamp(24px,4vw,38px);margin:12px 0 4px}h2{font-size:18px;margin:0 0 12px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:12px;margin:14px 0}.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:16px}.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}.metric{background:var(--panel2);border:1px solid var(--line);padding:12px;border-radius:12px}.metric small{color:var(--muted)}.metric b{display:block;font-size:21px;margin-top:4px}.btn{display:inline-flex;padding:10px 12px;border:1px solid var(--line);background:#1b2b43;color:var(--txt);border-radius:10px;text-decoration:none;cursor:pointer;font-weight:700}.primary{background:var(--mint);color:#08151e;border-color:var(--mint)}.list{display:grid;gap:8px}.item{padding:11px;background:var(--panel2);border:1px solid var(--line);border-radius:11px}.item small{color:var(--muted);display:block;margin-top:4px}.status{padding:13px;border-radius:12px;font-weight:800;margin:10px 0}.good{background:#173b35;color:#94e6d1}.warn{background:#453722;color:#ffe1a0}.bad{background:#482b31;color:#ffb1b1}.tag{display:inline-block;border:1px solid var(--line);border-radius:20px;padding:3px 8px;font-size:11px;color:var(--muted)}.notice{border-left:3px solid var(--amber);background:#1c2938;padding:10px;border-radius:8px;color:var(--muted);font-size:13px}.foot{font-size:12px;color:var(--muted);margin:20px 0}
+</style></head><body><main>
+<div class="top"><div><div class="brand">FIRSTPAY · V42</div><div class="muted">DATA VALIDATION &amp; INTEGRITY</div></div><div class="top"><a class="btn" href="firstpay-v39.html">V39 Engine ↗</a><a class="btn" href="firstpay-v40.html">V40 Cashflow ↗</a><a class="btn" href="firstpay-v41.html">V41 Dashboard ↗</a><button class="btn" onclick="runAudit()">Relancer l'audit</button><button class="btn" onclick="exportAudit()">Exporter audit JSON</button></div></div>
+<h1>La fiabilité de tes données, avant les recommandations.</h1><p class="muted">V42 vérifie le profil partagé, les budgets, les revenus, les dépenses et les snapshots Cashflow. Elle ne modifie aucune donnée automatiquement.</p>
+<div class="grid"><section class="panel"><h2>Score d'intégrité</h2><div class="metrics"><div class="metric"><small>Score</small><b id="score">—</b></div><div class="metric"><small>Erreurs bloquantes</small><b id="errors">—</b></div><div class="metric"><small>Warnings</small><b id="warnings">—</b></div><div class="metric"><small>Tests passés</small><b id="passed">—</b></div></div><div id="headline" class="status warn">Audit non lancé</div></section>
+<section class="panel"><h2>État du moteur</h2><div class="list" id="engine"></div></section></div>
+<div class="grid"><section class="panel"><h2>Erreurs à corriger</h2><div class="list" id="errList"></div></section><section class="panel"><h2>Warnings &amp; améliorations</h2><div class="list" id="warnList"></div></section></div>
+<section class="panel"><h2>Contrôles exécutés</h2><div class="list" id="checks"></div></section>
+<section class="panel"><h2>Principe de V42</h2><div class="notice">Validation stricte sans auto-correction : V42 signale les problèmes, mais ne réécrit pas tes données, ne supprime aucun doublon et ne convertit pas automatiquement les montants. Corrige dans V39 ou le module source, puis relance l'audit.</div><p class="muted" id="stamp">—</p><div id="msg" class="muted"></div></section>
+<div class="foot">FIRSTPAY V42 · Data Validation &amp; Integrity · Audit local dans ton navigateur</main>
+<script>
+const KEY='firstpay_unified_data_v39';
+const $=id=>document.getElementById(id);
+const money=n=>Number.isFinite(Number(n))?new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Number(n)):'—';
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function load(){try{return JSON.parse(localStorage.getItem(KEY)||'null')}catch(e){return null}}
+function check(label,ok,detail,severity='warning'){return {label,ok,detail,severity}}
+function audit(d){
+ let checks=[],errors=[],warnings=[];
+ const has=d&&typeof d==='object';
+ checks.push(check('Moteur V39 accessible',!!has,has?'Données JSON lues':'Clé firstpay_unified_data_v39 absente ou JSON invalide','error'));
+ if(!has){errors.push(checks[0]);return {checks,errors,warnings,score:0}}
+ checks.push(check('Structure de profil',!!d.profile&&typeof d.profile==='object',d.profile?'Profil présent':'Objet profile manquant','error'));
+ const p=d.profile||{};
+ checks.push(check('Destination',typeof p.destination==='string'&&p.destination.trim().length>1,p.destination||'Destination absente','warning'));
+ checks.push(check('Date de départ valide',!p.departureDate||!isNaN(Date.parse(p.departureDate)),p.departureDate||'Date non renseignée','error'));
+ checks.push(check('Budget cible non négatif',p.targetBudget==null||Number.isFinite(Number(p.targetBudget))&&Number(p.targetBudget)>=0,p.targetBudget==null?'Budget absent':String(p.targetBudget),'error'));
+ checks.push(check('Épargne actuelle non négative',p.currentSavings==null||Number.isFinite(Number(p.currentSavings))&&Number(p.currentSavings)>=0,p.currentSavings==null?'Épargne absente':String(p.currentSavings),'error'));
+ if(p.targetBudget!=null&&p.currentSavings!=null&&Number(p.currentSavings)>Number(p.targetBudget))warnings.push(check('Épargne dépasse le budget cible',false,`Épargne (${money(p.currentSavings)}) supérieure au budget (${money(p.targetBudget)})`));
+ for(const collection of ['expenses','incomes','milestones','scenarios']){
+  const arr=d[collection];checks.push(check(`Collection ${collection}`,arr==null||Array.isArray(arr),Array.isArray(arr)?`${arr.length} élément(s)`:(arr==null?'Collection absente (optionnelle)':'Type incorrect'),'error'));
+  if(Array.isArray(arr)){
+   const ids=arr.filter(x=>x&&x.id!=null).map(x=>String(x.id)),dups=ids.filter((id,i)=>ids.indexOf(id)!==i);
+   if(dups.length)warnings.push(check(`Identifiants dupliqués · ${collection}`,false,[...new Set(dups)].join(', ')));
+   arr.forEach((item,i)=>{
+    if(!item||typeof item!=='object'){errors.push(check(`${collection}[${i}]`,false,'Élément non-objet','error'));return}
+    if(item.amount!=null&&(!Number.isFinite(Number(item.amount))||Number(item.amount)<0))errors.push(check(`${collection}[${i}] montant invalide`,false,String(item.amount),'error'));
+    if(collection==='expenses'&&item.frequency&& !['weekly','monthly','once','yearly'].includes(item.frequency))warnings.push(check(`${collection}[${i}] fréquence inconnue`,false,String(item.frequency)));
+    if(!item.name)warnings.push(check(`${collection}[${i}] nom manquant`,false,'L’élément n’a pas de nom'));
+   });
+  }
+ }
+ checks.push(check('Snapshot Cashflow V40',!d.cashflowV33||typeof d.cashflowV33==='object',d.cashflowV33?'Snapshot trouvé':'Snapshot non enregistré (optionnel)','error'));
+ if(d.cashflowV33){
+  const c=d.cashflowV33;
+  ['minCash','final','atPay'].forEach(k=>{if(c[k]!=null&&!Number.isFinite(Number(c[k])))errors.push(check(`Cashflow ${k} non numérique`,false,String(c[k]),'error'))});
+  if(c.breakDay!=null&&(!Number.isFinite(Number(c.breakDay))||Number(c.breakDay)<1))errors.push(check('Jour de rupture invalide',false,String(c.breakDay),'error'));
+  if(c.inputs&&typeof c.inputs==='object')checks.push(check('Inputs snapshot Cashflow',true,'Entrées de simulation conservées'));
+ }
+ const possible=checks.length+errors.length+warnings.length,passed=checks.filter(c=>c.ok).length;
+ errors=errors.concat(checks.filter(c=>!c.ok&&c.severity==='error'));
+ warnings=warnings.concat(checks.filter(c=>!c.ok&&c.severity!=='error'));
+ const score=Math.round(100*(checks.filter(c=>c.ok).length)/(checks.length||1));
+ return {checks,errors,warnings,score,passed};
+}
+let latest=null;
+function renderList(id,items,empty){$(id).innerHTML=items.length?items.map(x=>`<div class="item"><b>${esc(x.label)}</b><small>${esc(x.detail)}</small></div>`).join(''):`<div class="item">${esc(empty)}</div>`}
+function runAudit(){
+ const d=load(),a=audit(d);latest={generatedAt:new Date().toISOString(),version:'V42',score:a.score,checks:a.checks,errors:a.errors,warnings:a.warnings};
+ $('score').textContent=a.score+'%';$('errors').textContent=a.errors.length;$('warnings').textContent=a.warnings.length;$('passed').textContent=a.passed;
+ let head=$('headline');if(a.errors.length){head.className='status bad';head.textContent='ACTION REQUIRED — erreurs bloquantes';}else if(a.warnings.length){head.className='status warn';head.textContent='PASS PARTIEL — vérifier les warnings';}else{head.className='status good';head.textContent='PASS — aucune anomalie détectée';}
+ renderList('errList',a.errors,'Aucune erreur bloquante.');renderList('warnList',a.warnings,'Aucun warning.');renderList('checks',a.checks.map(c=>({...c,label:(c.ok?'✓ ':'✕ ')+c.label})), 'Aucun contrôle exécuté.');
+ $('engine').innerHTML=[{label:'V39',status:d?'Présent':'Absent'},{label:'Profil',status:d?.profile?'Présent':'Absent'},{label:'Cashflow V40',status:d?.cashflowV33?'Snapshot présent':'Snapshot absent'},{label:'Audit',status:new Date().toLocaleString('fr-FR')}].map(x=>`<div class="item"><b>${esc(x.label)}</b><small>${esc(x.status)}</small></div>`).join('');
+ $('stamp').textContent='Audit lancé : '+new Date().toLocaleString('fr-FR')+' · Score calculé sur les contrôles structuraux';return latest;
+}
+function exportAudit(){if(!latest)runAudit();const blob=new Blob([JSON.stringify(latest,null,2)],{type:'application/json'}),a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='firstpay-v42-integrity-audit.json';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),500)}
+window.runAudit=runAudit;window.exportAudit=exportAudit;runAudit();
+</script></body></html>
