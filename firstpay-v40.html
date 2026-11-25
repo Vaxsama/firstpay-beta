@@ -91,6 +91,15 @@ if(days<Math.max(num('payday')+num('delay'),1))alerts.push('ℹ️ L’horizon s
 $('alerts').innerHTML=alerts.length?alerts.map(a=>`<div class="lineitem">${a}</div>`).join(''):'Aucune alerte avec les valeurs saisies.';
 const v=$('verdict');if(breakDay){v.className='status bad';v.textContent='NOT READY — trésorerie négative';}else if(min<num('reserve')){v.className='status warn';v.textContent='GO WITH CAUTION — réserve entamée';}else{v.className='status good';v.textContent='GO — réserve préservée selon la simulation';}
 }
+
+// V40 results snapshot for the shared V39 engine (safe, optional sync).
+try {
+ const shared=window.FirstPayData.load();
+ shared.cashflowV33={inputs:d,minCash:min,breakDay:breakDay,atPay:atPay,final:final,minDay:minDay,days:days,updatedAt:new Date().toISOString(),source:'V40 Cashflow'};
+ shared.meta=shared.meta||{};shared.meta.lastCashflowSync='V40 → V39';
+ window.FirstPayData.save(shared);
+} catch(syncError) { console.warn('FIRSTPAY shared snapshot unavailable',syncError); }
+
 $('run').onclick=sim;$('loadProject').onclick=fromProject;$('save').onclick=()=>{localStorage.setItem('firstpay_cashflow_v33',JSON.stringify(values()));$('msg').textContent='Paramètres V33 sauvegardés localement.'};
 try{const saved=JSON.parse(localStorage.getItem('firstpay_cashflow_v33')||'null');if(saved)ids.forEach(id=>{if(saved[id]!=null)$(id).value=saved[id]})}catch(e){}
 
